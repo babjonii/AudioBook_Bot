@@ -4,7 +4,7 @@ from pyrogram import Client
 # Read config.ini file
 config_obj = configparser.ConfigParser()
 print(f"{os.getcwd()}/Bot/config.ini")
-config_obj.read("f"{os.getcwd()}/Bot/config.ini"")
+config_obj.read(f"{os.getcwd()}/Bot/config.ini")
 
 bot_config = config_obj["pyrogram"]
 
