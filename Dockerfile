@@ -1,4 +1,4 @@
-FROM python:latest
+FROM ubuntu:latest
 WORKDIR /usr/src/nginx
 COPY . .
 
