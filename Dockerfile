@@ -1,4 +1,5 @@
 FROM python:latest
+WORKDIR /usr/src/nginx
 COPY . .
 RUN apt-get update
 RUN python3 -m pip install -r requirements.txt & apt install -y aria2
