@@ -1,5 +1,6 @@
 aiohttp
 bs4
+ujson
 elasticsearch[async]
 pyrogram
 SQLAlchemy
