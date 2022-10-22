@@ -1,0 +1,9 @@
+aiohttp
+bs4
+elasticsearch[async]
+pyrogram
+SQLAlchemy
+beautifulsoup4
+requests
+TgCrypto
+aioaria2
