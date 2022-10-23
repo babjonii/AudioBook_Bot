@@ -1,7 +1,8 @@
 from pyrogram.types import *
-from pyrogram import Client, emoji, filters
+import emoji
+from pyrogram import Client, filters
 from Bot.helperFx.Schemas.dlSchema import session, DownloadDb
-
+from Bot.helperFx.messageTemplates import audio_item
 from Bot.helperFx.onlineBooks import Fla, Get_Links
 from Bot import _downloader
 import logging
@@ -83,14 +84,21 @@ async def handle_query(_, message: Message):
         )
         session.add(item)
         session.commit()
-        response = (
-            response
-            + f"""{ABooks.index(book)+1}  Title:{book['title']}\n    Author:{book['author']}\n\n"""
+        response = response + audio_item.render(
+            **{
+                "number": emoji.emojize(f":keycap_{ABooks.index(book)+1}:"),
+                "Title": book["title"],
+                "Author": book["author"],
+            }
         )
+        # response = (
+        #     response
+        #     + f"""{ABooks.index(book)+1}  Title:{book['title']}\n    Author:{book['author']}\n\n"""
+        # )
 
         rows.append(
             InlineKeyboardButton(
-                text=f"{ABooks.index(book)+1} ",
+                text=emoji.emojize(f":keycap_{ABooks.index(book)+1}:"),
                 callback_data=_id,
             )
         )

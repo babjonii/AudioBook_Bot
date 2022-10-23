@@ -2,6 +2,9 @@ import aioaria2
 import ujson, json
 from Bot.helperFx.Schemas.dlSchema import session, DownloadDb
 from Bot import books_bot
+from Bot.helperFx.messageTemplates import download_template
+from urllib.parse import unquote
+import emoji
 
 
 async def find_download(trigger, data):
@@ -28,10 +31,16 @@ async def on_download_complete(trigger, data):
 
     if all(item == 1 for item in _status.values()):
 
-        await books_bot.send_message(
-            # message_id=_tl_data["msg_id"],
+        await books_bot.edit_message_text(
+            message_id=_tl_data["msg_id"],
             chat_id=_tl_data["chat_id"],
-            text=text,
+            text=download_template.render(
+                **{
+                    "name": unquote(path),
+                    "emoji": emoji.emojize(":check_mark_button:"),
+                    "state": False,
+                }
+            ),
             reply_markup=None,
         )
         print(text)
@@ -44,7 +53,13 @@ async def on_download_start(trigger, data):
         _download.download_status = 0
         msg = await books_bot.send_message(
             chat_id=_tl_data["chat_id"],
-            text=text,
+            text=download_template.render(
+                **{
+                    "name": unquote(path),
+                    "emoji": emoji.emojize(":stopwatch:"),
+                    "state": True,
+                }
+            ),
             reply_markup=None,
         )
         _tl_data["msg_id"] = msg.id

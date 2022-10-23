@@ -52,7 +52,7 @@ async def Fla(query):
         ) as resp:
 
             string = await resp.text()
-        
+
             result = [
                 {"url": i[0], "author": i[1], "title": i[2]}
                 for i in re.findall(pattern, string)

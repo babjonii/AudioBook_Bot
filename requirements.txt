@@ -7,4 +7,8 @@ SQLAlchemy
 beautifulsoup4
 requests
 TgCrypto
+emoji
 aioaria2
+aria2p
+jinja2
+fuzzywuzzy[speedup]
