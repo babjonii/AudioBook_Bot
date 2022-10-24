@@ -72,6 +72,11 @@ async def handle_query(_, message: Message):
 
     message.text
     ABooks = await Fla(message.text)
+    if not ABooks:
+        await message.reply_text(
+            f" No result for {message.text} 🤷🏻 ",
+        )
+        return
     response = ""
     rows = []
     for book in ABooks:
