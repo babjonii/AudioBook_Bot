@@ -1,52 +1,37 @@
-from fuzzywuzzy import fuzz
-import asyncio
+import time, json, os
 import aiohttp, re, pprint, asyncio
 from pyrogram import Client
+from fuzzywuzzy import fuzz
 from hachoir.metadata import extractMetadata
 from hachoir.parser import createParser
+from Bot import config_obj
+from pyrogram.types import InputMediaPhoto, InputMediaAudio
 from aria2p.utils import human_readable_bytes, human_readable_timedelta
+from Bot.helperFx.Schemas.dlSchema import session, DownloadDb
+from six.moves.urllib.request import urlretrieve
 
 
-def bar(current, total, client, message: Message, name, start):
-    now = time.time()
-    time_delta = now - start
-    info = {}
+def download_file(file_url, name=None):
+    file_output_path = os.path.join("./Downloads", name + ".jpeg")
+    filename, _ = urlretrieve(file_url, file_output_path)
+    return file_output_path
 
-    if round(time_delta % 10.00) == 0:
-        speed = current / time_delta
-        info["title"] = name
-        info["current"] = human_readable_bytes(current)
-        info["total"] = human_readable_bytes(total)
-        info["speed"] = human_readable_bytes(speed)
 
-        percentage = current * 100 / total
-        elapsed_time = round(time_delta) * 1000
-        time_to_completion = round((total - current) / speed) * 1000
-        estimated_total_time = elapsed_time + time_to_completion
+async def upload_files(id, client: Client):
+    _download: DownloadDb = session.query(DownloadDb).filter_by(id=id).first()
+    print(json.loads(_download.links))
+    # client.send_media_group(
+    #     chat_id=config_obj["telegram"],
+    #     media=[InputMediaPhoto("photo1.jpg"), []],
+    # )
+    # pass
 
-        progress = "[{0}{1}] {2}%".format(
-            "".join(["█" for i in range(math.floor(percentage / 5))]),
-            "".join(["░" for i in range(20 - math.floor(percentage / 5))]),
-            round(percentage, 2),
-        )
 
-        info["animation"] = progress
-        info["eta"] = TimeFormatter(milliseconds=time_to_completion)
-        user_id = message.chat.id
-        mes_id = message.message_id
-        prev_text = message.text
-        new_text = get_upload_template(info)
-        if prev_text != new_text:
-            try:
-                m = client.edit_message_text(
-                    chat_id=user_id, message_id=mes_id, text=new_text, parse_mode="html"
-                )
-            except FloodWait as e:
-                pass
-            except Exception as e:
-                print(str(e))
-                time.sleep(1)
-                pass
+async def upload_book(id):
+    # upload all the files async
+    #
+    #
+    pass
 
 
 async def get_metadata(query):
@@ -56,7 +41,6 @@ async def get_metadata(query):
             f"https://digitalbooks.api86.workers.dev/?query={query}"
         )
         rez = await resp.json()
-        print(rez)
         return [
             {
                 "image": i["Images"]["Primary"]["Medium"]["URL"],
@@ -75,8 +59,8 @@ async def get_metadata(query):
         ]
 
 
-async def postData(query, client: Client):
-
+async def postData(query, client: Client = None):
+    print(query["meta"])
     datas = await get_metadata(query["meta"])
     results = []
     for data in datas:
@@ -94,7 +78,7 @@ async def postData(query, client: Client):
         # print(
         #     , data["title"], authors_score, title_score
         # )
-    metadata = datas[results.index(max(results))]
+    return datas[results.index(max(results))]
     # await client.send_audio(,)
 
 

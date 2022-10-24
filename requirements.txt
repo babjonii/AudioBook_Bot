@@ -11,4 +11,5 @@ emoji
 aioaria2
 aria2p
 jinja2
+hachoir
 fuzzywuzzy[speedup]

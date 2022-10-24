@@ -4,3 +4,6 @@
 *.pyc
 Bot/plugins/__pycache__/handlers.cpython-38.pyc
 *.session
+*.jpeg
+*.png
+*.jpg

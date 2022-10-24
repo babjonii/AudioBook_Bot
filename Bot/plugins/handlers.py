@@ -4,6 +4,8 @@ from pyrogram import Client, filters
 from Bot.helperFx.Schemas.dlSchema import session, DownloadDb
 from Bot.helperFx.messageTemplates import audio_item
 from Bot.helperFx.onlineBooks import Fla, Get_Links
+from Bot.helperFx.messageTemplates import greeting_template
+from Bot import config_obj
 from Bot import _downloader
 import logging
 import uuid, asyncio, ujson, json
@@ -24,7 +26,15 @@ def divide_chunks(l, n):
 
 @Client.on_message(filters.command(["start"], prefixes="/"))
 async def handle_start(_, message: Message):
-    await message.reply_text("I got books yo!")
+
+    await message.reply_text(
+        greeting_template.render(
+            **{
+                "user_name": f"{message.from_user.first_name}",
+                "bot_name": config_obj["telegram"]["bot_name"],
+            }
+        )
+    )
 
 
 @Client.on_callback_query()
@@ -43,7 +53,7 @@ async def handle_callback(client: Client, callback_query: CallbackQuery):
     )
     links = await Get_Links(download_item.page)
     download_item.path = links[0].split("/")[-2]
-    download_item.links = str(links)
+    download_item.links = ujson.dumps(links)
     download_item.status = ujson.dumps({i: {"status": -1} for i in links})
     session.commit()
     asyncio.gather(

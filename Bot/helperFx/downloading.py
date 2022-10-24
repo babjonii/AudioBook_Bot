@@ -1,10 +1,17 @@
-import aioaria2
-import ujson, json
+import ujson, aioaria2, emoji, os, pprint, re, asyncio
 from Bot.helperFx.Schemas.dlSchema import session, DownloadDb
 from Bot import books_bot
-from Bot.helperFx.messageTemplates import download_template
-from urllib.parse import unquote
-import emoji
+from Bot.helperFx.messageTemplates import download_template, post_template
+from urllib.parse import unquote, quote
+from pyrogram.types import InputMediaPhoto, InputMediaAudio, InputMediaDocument
+from Bot import config_obj
+from hachoir.metadata import extractMetadata
+from hachoir.parser import createParser
+from Bot.plugins.handlers import divide_chunks
+from Bot.helperFx.postData import postData, download_file
+from pyrogram.errors import FloodWait
+
+clean = re.compile("[^a-zA-Z] ")
 
 
 async def find_download(trigger, data):
@@ -43,7 +50,46 @@ async def on_download_complete(trigger, data):
             ),
             reply_markup=None,
         )
-        print(text)
+        links = ujson.loads(_download.links)
+        _meta = await postData(
+            {
+                "meta": clean.sub(" ", f"{_download.title} {_download.author}"),
+                "title": _download.title,
+                "author": _download.author,
+            }
+        )
+        pprint.pprint(_meta)
+        _links = [
+            f"{os.getcwd()}/Downloads/{_download.title}/{unquote(i.split('/')[-1])}"
+            for i in links
+        ]
+
+        audio_media = [
+            InputMediaAudio(
+                media=i,
+                duration=extractMetadata(createParser(i)).get("duration").seconds,
+                title=f"{_download.title} {_links.index(i)+1} ",
+                performer=_download.author,
+                thumb=download_file(_meta["image"], name=_download.title),
+            )
+            for i in _links
+        ]
+        await books_bot.send_photo(
+            chat_id=-1001186096459,
+            photo=_meta["image"].replace("SL160", "SL300"),
+            caption=post_template.render(**_meta),
+        )
+        for batch in divide_chunks(audio_media, 8):
+            pprint.pprint(batch)
+            while True:
+                try:
+                    await books_bot.send_media_group(
+                        chat_id=-1001186096459,
+                        media=batch,
+                    )
+                    break
+                except FloodWait as e:
+                    await asyncio.sleep(e.value)
 
 
 async def on_download_start(trigger, data):
