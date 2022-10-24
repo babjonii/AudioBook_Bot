@@ -12,4 +12,5 @@ aioaria2
 aria2p
 jinja2
 hachoir
+six
 fuzzywuzzy[speedup]
