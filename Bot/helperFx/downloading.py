@@ -13,6 +13,17 @@ from pyrogram.errors import FloodWait
 
 clean = re.compile("[^a-zA-Z] ")
 
+async def ubuntu_cleaner(folder):
+    try:
+        if os.path.isdir(folder):
+            shutil.rmtree(folder)
+        else:
+            os.remove(folder)
+        subprocess.call("apt-get clean", shell=True)
+    except:
+        pass
+
+
 
 async def find_download(trigger, data):
     gid: str = data["params"][0]["gid"]
@@ -90,6 +101,7 @@ async def on_download_complete(trigger, data):
                     break
                 except FloodWait as e:
                     await asyncio.sleep(e.value)
+        ubuntu_cleaner(f"{os.getcwd()}/Downloads/{_download.title}")
 
 
 async def on_download_start(trigger, data):
