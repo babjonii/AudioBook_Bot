@@ -101,7 +101,7 @@ async def on_download_complete(trigger, data):
                     break
                 except FloodWait as e:
                     await asyncio.sleep(e.value)
-        ubuntu_cleaner(f"{os.getcwd()}/Downloads/{_download.title}")
+        await ubuntu_cleaner(f"{os.getcwd()}/Downloads/{_download.title}")
 
 
 async def on_download_start(trigger, data):
